@@ -36,6 +36,9 @@ std::string BatGetMedia::GetLinkType(const std::string& url,
                                                        first_party_url,
                                                        referrer);
   }
+  if (type.empty()) {
+    type = braveledger_media::MediaVimeo::GetLinkType(url);
+  }
 
   return type;
 }
