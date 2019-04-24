@@ -20,7 +20,8 @@ BatGetMedia::BatGetMedia(bat_ledger::LedgerImpl* ledger):
   media_youtube_(new braveledger_media::MediaYouTube(ledger)),
   media_twitch_(new braveledger_media::MediaTwitch(ledger)),
   media_twitter_(new braveledger_media::MediaTwitter(ledger)),
-  media_reddit_(new braveledger_media::MediaReddit(ledger)) {
+  media_reddit_(new braveledger_media::MediaReddit(ledger)),
+  media_vimeo_(new braveledger_media::MediaVimeo(ledger)) {
 }
 
 BatGetMedia::~BatGetMedia() {}
@@ -57,6 +58,11 @@ void BatGetMedia::ProcessMedia(const std::map<std::string, std::string>& parts,
 
   if (type == TWITCH_MEDIA_TYPE) {
     media_twitch_->ProcessMedia(parts, *visit_data);
+    return;
+  }
+
+  if (type == VIMEO_MEDIA_TYPE) {
+    media_vimeo_->ProcessMedia(parts);
     return;
   }
 }
