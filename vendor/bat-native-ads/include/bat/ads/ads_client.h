@@ -100,8 +100,7 @@ class ADS_EXPORT AdsClient {
   // false
   virtual bool IsForeground() const = 0;
 
-  // Should return true if the operating system supports notifications otherwise
-  // returns false
+  // Should return true if notifications are available otherwise returns false
   virtual bool IsNotificationsAvailable() const = 0;
 
   // Should show a notification

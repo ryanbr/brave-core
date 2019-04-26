@@ -43,8 +43,7 @@ class AdsClientMojoBridge : public mojom::BatAdsClient,
   bool GenerateUUID(std::string* out_uuid) override;
   void GenerateUUID(GenerateUUIDCallback callback) override;
   bool IsNotificationsAvailable(bool* out_available) override;
-  void IsNotificationsAvailable(
-      IsNotificationsAvailableCallback callback) override;
+  void IsNotificationsAvailable(IsNotificationsAvailableCallback callback) override;
   bool SetTimer(uint64_t time_offset, uint32_t* out_timer_id) override;
   void SetTimer(uint64_t time_offset, SetTimerCallback callback) override;
   bool LoadJsonSchema(const std::string& name, std::string* out_json) override;

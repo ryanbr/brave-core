@@ -192,7 +192,7 @@ const std::string GenerateUUID() const
 bool IsForeground() const
 ```
 
-`IsNotificationsAvailable` should return `true` if the operating system supports notifications otherwise returns `false`
+`IsNotificationsAvailable` should return `true` if notifications are available otherwise returns `false`
 ```
 bool IsNotificationsAvailable() const
 ```

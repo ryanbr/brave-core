@@ -24,6 +24,7 @@
 #include "bat/ads/resources/grit/bat_ads_resources.h"
 #include "brave/components/brave_ads/browser/ad_notification.h"
 #include "brave/components/brave_ads/browser/locale_helper.h"
+#include "brave/components/brave_ads/browser/notification_helper.h"
 #include "brave/components/brave_ads/browser/bundle_state_database.h"
 #include "brave/components/brave_ads/common/pref_names.h"
 #include "brave/components/brave_rewards/common/pref_names.h"
@@ -873,7 +874,7 @@ void AdsServiceImpl::SetIdleThreshold(const int threshold) {
 
 bool AdsServiceImpl::IsNotificationsAvailable() const {
 #if BUILDFLAG(ENABLE_NATIVE_NOTIFICATIONS)
-  return true;
+  return NotificationHelper::GetInstance()->IsNotificationsAvailable();
 #else
   return false;
 #endif
