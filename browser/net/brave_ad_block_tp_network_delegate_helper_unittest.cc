@@ -116,10 +116,13 @@ TEST_F(BraveAdBlockTPNetworkDelegateHelperTest, Blocking) {
 
 TEST_F(BraveAdBlockTPNetworkDelegateHelperTest, GetPolyfill) {
   GURL tab_origin("https://test.com");
+  GURL google_analytics_url(kGoogleAnalyticsPattern);
   GURL tag_manager_url(kGoogleTagManagerPattern);
   GURL tag_services_url(kGoogleTagServicesPattern);
   GURL normal_url("https://a.com");
   std::string out_url_spec;
+  // Shields up, block ads, google analytics should get polyfill
+  ASSERT_TRUE(GetPolyfillForAdBlock(true, false, tab_origin, google_analytics_url, &out_url_spec));
   // Shields up, block ads, tag manager should get polyfill
   ASSERT_TRUE(GetPolyfillForAdBlock(true, false, tab_origin, tag_manager_url, &out_url_spec));
   // Shields up, block ads, tag services should get polyfill
@@ -127,6 +130,8 @@ TEST_F(BraveAdBlockTPNetworkDelegateHelperTest, GetPolyfill) {
   // Shields up, block ads, normal URL should NOT get polyfill
   ASSERT_FALSE(GetPolyfillForAdBlock(true, false, tab_origin, normal_url, &out_url_spec));
 
+  // Shields up, allow ads, google analytics should get polyfill
+  ASSERT_FALSE(GetPolyfillForAdBlock(true, false, tab_origin, google_analytics_url, &out_url_spec));
   // Shields up, allow ads, tag manager should NOT get polyfill
   ASSERT_FALSE(GetPolyfillForAdBlock(true, true, tab_origin, tag_manager_url, &out_url_spec));
   // Shields up, allow ads, tag services should NOT get polyfill
@@ -134,6 +139,8 @@ TEST_F(BraveAdBlockTPNetworkDelegateHelperTest, GetPolyfill) {
   // Shields up, allow ads, normal URL should NOT get polyfill
   ASSERT_FALSE(GetPolyfillForAdBlock(true, true, tab_origin, normal_url, &out_url_spec));
 
+  // Shields down, allow ads, google analytics should get polyfill
+  ASSERT_FALSE(GetPolyfillForAdBlock(false, true, tab_origin, google_analytics_url, &out_url_spec));
   // Shields down, allow ads, tag manager should NOT get polyfill
   ASSERT_FALSE(GetPolyfillForAdBlock(false, true, tab_origin, tag_manager_url, &out_url_spec));
   // Shields down, allow ads, tag services should NOT get polyfill
@@ -141,6 +148,8 @@ TEST_F(BraveAdBlockTPNetworkDelegateHelperTest, GetPolyfill) {
   // Shields down, allow ads, normal URL should NOT get polyfill
   ASSERT_FALSE(GetPolyfillForAdBlock(false, true, tab_origin, normal_url, &out_url_spec));
 
+  // Shields down, block ads, google analytics should get polyfill
+  ASSERT_FALSE(GetPolyfillForAdBlock(false, false, tab_origin, google_analytics_url, &out_url_spec));
   // Shields down, block ads, tag manager should NOT get polyfill
   ASSERT_FALSE(GetPolyfillForAdBlock(false, false, tab_origin, tag_manager_url, &out_url_spec));
   // Shields down, block ads, tag services should NOT get polyfill
