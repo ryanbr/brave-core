@@ -66,6 +66,8 @@ source_set("browser_process") {
     "mac/su_updater.h",
     "metrics/metrics_reporting_util.cc",
     "metrics/metrics_reporting_util.h",
+    "safe_browsing/download_protection/brave_check_client_download_request.cc",
+    "safe_browsing/download_protection/brave_check_client_download_request.h",
     "search_engines/guest_window_search_engine_provider_service.cc",
     "search_engines/guest_window_search_engine_provider_service.h",
     "search_engines/private_window_search_engine_provider_service.cc",

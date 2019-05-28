@@ -1,0 +1,21 @@
+diff --git a/chrome/browser/safe_browsing/download_protection/download_protection_service.cc b/chrome/browser/safe_browsing/download_protection/download_protection_service.cc
+index 615e279a13c4d01724492f0ad493f8eeb5f1edbe..d32a2a4c7af58d9e2cb9cfe239f02c3341eb0462 100644
+--- a/chrome/browser/safe_browsing/download_protection/download_protection_service.cc
++++ b/chrome/browser/safe_browsing/download_protection/download_protection_service.cc
+@@ -9,6 +9,7 @@
+ #include "base/metrics/histogram_macros.h"
+ #include "base/task/post_task.h"
+ #include "base/task/task_traits.h"
++#include "brave/browser/safe_browsing/download_protection/brave_check_client_download_request.h"
+ #include "chrome/browser/browser_process.h"
+ #include "chrome/browser/extensions/api/safe_browsing_private/safe_browsing_private_event_router.h"
+ #include "chrome/browser/extensions/api/safe_browsing_private/safe_browsing_private_event_router_factory.h"
+@@ -172,7 +173,7 @@ void DownloadProtectionService::CheckClientDownload(
+     callback.Run(DownloadCheckResult::WHITELISTED_BY_POLICY);
+     return;
+   }
+-  auto request = std::make_unique<CheckClientDownloadRequest>(
++  auto request = std::make_unique<BraveCheckClientDownloadRequest>(
+       item, callback, this, database_manager_, binary_feature_extractor_.get());
+   CheckClientDownloadRequest* request_copy = request.get();
+   download_requests_[request_copy] = std::move(request);

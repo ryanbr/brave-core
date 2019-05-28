@@ -1,0 +1,26 @@
+diff --git a/chrome/browser/safe_browsing/download_protection/check_client_download_request.h b/chrome/browser/safe_browsing/download_protection/check_client_download_request.h
+index ae219730b0e46facaeebe3192cf04ba3299aa6b6..c0524be0175aa478ac8ae28fd9b7c47f03491a5d 100644
+--- a/chrome/browser/safe_browsing/download_protection/check_client_download_request.h
++++ b/chrome/browser/safe_browsing/download_protection/check_client_download_request.h
+@@ -64,6 +64,11 @@ class CheckClientDownloadRequest : public download::DownloadItem::Observer {
+                                   DownloadCheckResultReason* reason,
+                                   ClientDownloadRequest::DownloadType* type);
+ 
++ protected:
++  virtual void SendRequest();
++  void FinishRequest(DownloadCheckResult result,
++                     DownloadCheckResultReason reason);
++
+  private:
+   friend struct BrowserThread::DeleteOnThread<BrowserThread::UI>;
+   friend class base::DeleteHelper<CheckClientDownloadRequest>;
+@@ -84,9 +89,6 @@ class CheckClientDownloadRequest : public download::DownloadItem::Observer {
+                          const history::RedirectList* redirect_list);
+   bool IsDownloadManuallyBlacklisted(const ClientDownloadRequest& request);
+   std::string SanitizeUrl(const GURL& url) const;
+-  void SendRequest();
+-  void FinishRequest(DownloadCheckResult result,
+-                     DownloadCheckResultReason reason);
+   bool CertificateChainIsWhitelisted(
+       const ClientDownloadRequest_CertificateChain& chain);
+ 
