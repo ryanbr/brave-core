@@ -181,9 +181,10 @@ int GetSchemaResourceId(const std::string& name) {
 }
 
 static std::map<std::string, int> g_user_model_resource_ids = {
+  {"en", IDR_ADS_USER_MODEL_EN},
   {"de", IDR_ADS_USER_MODEL_DE},
   {"fr", IDR_ADS_USER_MODEL_FR},
-  {"en", IDR_ADS_USER_MODEL_EN},
+  {"ja", IDR_ADS_USER_MODEL_JA},
 };
 
 int GetUserModelResourceId(const std::string& locale) {
