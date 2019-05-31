@@ -1,0 +1,14 @@
+diff --git a/chrome/browser/notifications/notification_platform_bridge_linux.cc b/chrome/browser/notifications/notification_platform_bridge_linux.cc
+index aa6d15f6ebbdcc6e70374a46ca9c11d4c1bff854..f8eb2f1fa6118e52d57b89d2e93a12bf36e76050 100644
+--- a/chrome/browser/notifications/notification_platform_bridge_linux.cc
++++ b/chrome/browser/notifications/notification_platform_bridge_linux.cc
+@@ -632,7 +632,8 @@ class NotificationPlatformBridgeLinuxImpl
+       actions.push_back("Activate");
+       // Always add a settings button for web notifications.
+       if (notification_type != NotificationHandler::Type::EXTENSION &&
+-          notification_type != NotificationHandler::Type::SEND_TAB_TO_SELF) {
++          notification_type != NotificationHandler::Type::SEND_TAB_TO_SELF &&
++          notification_type != NotificationHandler::Type::BRAVE_ADS) {
+         actions.push_back(kSettingsButtonId);
+         actions.push_back(
+             l10n_util::GetStringUTF8(IDS_NOTIFICATION_BUTTON_SETTINGS));
