@@ -2436,6 +2436,20 @@ void RewardsServiceImpl::TriggerOnGetCurrentBalanceReport(
   }
 }
 
+void RewardsServiceImpl::OnSetContributionAutoInclude(
+    const std::string& publisher_id,
+    int32_t exclude) {
+  bool excluded = exclude == ledger::PUBLISHER_EXCLUDE::EXCLUDED;
+
+  if (excluded) {
+    DeleteActivityInfo(publisher_id);
+  }
+
+  for (auto& observer : observers_) {
+    observer.OnExcludedSitesChanged(this, publisher_id, excluded);
+  }
+}
+
 void RewardsServiceImpl::SetContributionAutoInclude(
     const std::string& publisher_key,
     bool exclude) {
@@ -2447,7 +2461,10 @@ void RewardsServiceImpl::SetContributionAutoInclude(
       ? ledger::PUBLISHER_EXCLUDE::EXCLUDED
       : ledger::PUBLISHER_EXCLUDE::INCLUDED;
 
-  bat_ledger_->SetPublisherExclude(publisher_key, status);
+  auto callback = base::BindOnce(
+    &RewardsServiceImpl::OnSetContributionAutoInclude,
+    AsWeakPtr());
+  bat_ledger_->SetPublisherExclude(publisher_key, status, std::move(callback));
 }
 
 RewardsNotificationService* RewardsServiceImpl::GetNotificationService() const {

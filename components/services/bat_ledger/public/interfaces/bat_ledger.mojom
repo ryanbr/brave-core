@@ -49,7 +49,7 @@ interface BatLedger {
   OnXHRLoad(uint32 tab_id, string url, map<string, string> parts,
             string first_party_url, string referrer, string visit_data);
 
-  SetPublisherExclude(string publisher_key, int32 exclude);
+  SetPublisherExclude(string publisher_key, int32 exclude) => (string publisher_id, int32 exclude);
   RestorePublishers();
 
   SetBalanceReportItem(int32 month, int32 year, int32 type, string probi);

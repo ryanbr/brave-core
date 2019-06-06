@@ -63,7 +63,7 @@ class BatLedgerImpl : public mojom::BatLedger,
       const std::string& visit_data) override;
 
   void SetPublisherExclude(const std::string& publisher_key,
-      int32_t exclude) override;
+      int32_t exclude, SetPublisherExcludeCallback callback) override;
   void RestorePublishers() override;
 
   void SetBalanceReportItem(
@@ -233,6 +233,7 @@ class BatLedgerImpl : public mojom::BatLedger,
       CallbackHolder<GetRecurringTipsCallback>* holder,
       ledger::PublisherInfoList list,
       uint32_t num);
+
   static void OnRefreshPublisher(
       CallbackHolder<RefreshPublisherCallback>* holder,
       bool verified);
@@ -251,6 +252,11 @@ class BatLedgerImpl : public mojom::BatLedger,
     CallbackHolder<SaveMediaInfoCallback>* holder,
     ledger::Result result,
     ledger::PublisherInfoPtr info);
+
+  static void OnSetPublisherExclude(
+    CallbackHolder<SetPublisherExcludeCallback>* holder,
+    const std::string& publisher_key,
+    int32_t result);
 
   static void OnGetPendingContributions(
     CallbackHolder<GetPendingContributionsCallback>* holder,
