@@ -49,18 +49,67 @@ class MediaVimeo : public ledger::LedgerCallbackHandler {
 
   static std::string GetNameFromVideoPage(const std::string& data);
 
-  static std::string GetPublisherUrl(const std::string& data);
+  static std::string GetUrlFromVideoPage(const std::string& data);
 
   static bool AllowedEvent(const std::string& event);
 
   static uint64_t GetDuration(const ledger::MediaEventInfo& old_event,
                               const ledger::MediaEventInfo& new_event);
 
+  static bool IsExcludedPath(const std::string& path);
+
+  static std::string GetIdFromPublisherPage(const std::string& data);
+
+  static std::string GetNameFromPublisherPage(const std::string& data);
+
+  static std::string GetVideoIdFromVideoPage(const std::string& data);
+
   void FetchDataFromUrl(
     const std::string& url,
     braveledger_media::FetchDataFromUrlCallback callback);
 
   void OnMediaActivityError(uint64_t window_id = 0);
+
+  void OnEmbedResponse(
+    const ledger::VisitData& visit_data,
+    const uint64_t window_id,
+    int response_status_code,
+    const std::string& response,
+    const std::map<std::string, std::string>& headers);
+
+  void OnPublisherPage(
+    const std::string& media_key,
+    const std::string& publisher_url,
+    const std::string& publisher_name,
+    const ledger::VisitData& visit_data,
+    const uint64_t window_id,
+    int response_status_code,
+    const std::string& response,
+    const std::map<std::string, std::string>& headers);
+
+  void OnUnknownPage(
+    const ledger::VisitData& visit_data,
+    const uint64_t window_id,
+    int response_status_code,
+    const std::string& response,
+    const std::map<std::string, std::string>& headers);
+
+  void OnPublisherPanleInfo(
+    const std::string& media_key,
+    uint64_t window_id,
+    const std::string& publisher_url,
+    const std::string& publisher_name,
+    const std::string& user_id,
+    ledger::Result result,
+    ledger::PublisherInfoPtr info);
+
+  void GetPublisherPanleInfo(
+    const std::string& media_key,
+    uint64_t window_id,
+    const std::string& publisher_url,
+    const std::string& publisher_key,
+    const std::string& publisher_name,
+    const std::string& user_id);
 
   void OnMediaPublisherInfo(
     const std::string& media_id,
@@ -101,9 +150,13 @@ class MediaVimeo : public ledger::LedgerCallbackHandler {
   FRIEND_TEST_ALL_PREFIXES(MediaVimeoTest, GetIdFromVideoPage);
   FRIEND_TEST_ALL_PREFIXES(MediaVimeoTest, GenerateFaviconUrl);
   FRIEND_TEST_ALL_PREFIXES(MediaVimeoTest, GetNameFromVideoPage);
-  FRIEND_TEST_ALL_PREFIXES(MediaVimeoTest, GetPublisherUrl);
+  FRIEND_TEST_ALL_PREFIXES(MediaVimeoTest, GetUrlFromVideoPage);
   FRIEND_TEST_ALL_PREFIXES(MediaVimeoTest, AllowedEvent);
   FRIEND_TEST_ALL_PREFIXES(MediaVimeoTest, GetDuration);
+  FRIEND_TEST_ALL_PREFIXES(MediaVimeoTest, IsExcludedPath);
+  FRIEND_TEST_ALL_PREFIXES(MediaVimeoTest, GetIdFromPublisherPage);
+  FRIEND_TEST_ALL_PREFIXES(MediaVimeoTest, GetNameFromPublisherPage);
+  FRIEND_TEST_ALL_PREFIXES(MediaVimeoTest, GetVideoIdFromVideoPage);
 };
 
 }  // namespace braveledger_media
