@@ -294,7 +294,7 @@
       <!-- WebUI brave ui resources -->
       <message name="IDS_BRAVE_UI_ABOUT" desc="">about</message>
       <message name="IDS_BRAVE_UI_ACCEPT" desc="">Accept</message>
-      <message name="IDS_BRAVE_UI_ACTIVITY_COPY" desc="">©2016–2018 Brave Software. Brave is a registered trademark of Brave Software. Site names may be trademarks or registered trademarks of the site owner.</message>
+      <message name="IDS_BRAVE_UI_ACTIVITY_COPY" desc="">©2016–2019 Brave Software. Brave is a registered trademark of Brave Software. Site names may be trademarks or registered trademarks of the site owner.</message>
       <message name="IDS_BRAVE_UI_ACTIVITY_NOTE" desc="">To protect your privacy, this Brave Rewards statement is not saved, recorded or logged anywhere other than on your device (this computer). It cannot be retrieved from Brave in the event of data loss on your device.</message>
       <message name="IDS_BRAVE_UI_ADD_FUNDS" desc="">add funds</message>
       <message name="IDS_BRAVE_UI_AUTO_TIP_TEXT" desc="">You are automatically sending a tip to:</message>
@@ -335,7 +335,7 @@
       <message name="IDS_BRAVE_UI_CLAIM" desc="">Claim</message>
       <message name="IDS_BRAVE_UI_CLOSE_BALANCE" desc="">Closing Balance</message>
       <message name="IDS_BRAVE_UI_CONTRIBUTE" desc="">Contribute</message>
-      <message name="IDS_BRAVE_UI_CONTRIBUTE_ALLOCATION" desc="">Auto-Contribute Allocation</message>
+      <message name="IDS_BRAVE_UI_CONTRIBUTE_ALLOCATION" desc="">Auto-Contribute Detail</message>
       <message name="IDS_BRAVE_UI_COPY" desc="">Copy</message>
       <message name="IDS_BRAVE_UI_CURRENT_DONATION" desc="">You’re currently sending {{currentDonation}} BAT to this site every month.</message>
       <message name="IDS_BRAVE_UI_DATE" desc="">Date</message>
