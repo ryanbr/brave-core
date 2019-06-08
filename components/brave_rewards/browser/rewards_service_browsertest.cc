@@ -60,6 +60,19 @@ std::unique_ptr<net::test_server::HttpResponse> HandleRequest(
         "    </div>"
         "  </body>"
         "</html>");
+  } else if (request.relative_url == "/reddit") {
+    http_response->set_content(
+      "<html>"
+        "  <head></head>"
+        "  <body>"
+        "    <div class='Comment'>"
+        "      <div>"
+        "        <button aria-label='more options'>"
+        "        </button>"
+        "      </div>"
+        "    </div>"
+        "  </body>"
+        "</html>");
   } else {
     http_response->set_content(
         "<html>"
@@ -872,7 +885,7 @@ class BraveRewardsBrowserTest :
     }
   }
 
-  bool IsTwitterTipsInjected() {
+  bool IsMediaTipsInjected() {
     content::EvalJsResult js_result =
         EvalJs(contents(),
                "new Promise((resolve) => {"
@@ -1686,7 +1699,7 @@ IN_PROC_BROWSER_TEST_F(BraveRewardsBrowserTest, TwitterTipsInjectedOnTwitter) {
       ui_test_utils::BROWSER_TEST_WAIT_FOR_NAVIGATION);
 
   // Ensure that Twitter tips injection is active
-  EXPECT_TRUE(IsTwitterTipsInjected());
+  EXPECT_TRUE(IsMediaTipsInjected());
 }
 
 // Brave tip icon is not injected when visiting Twitter while Brave
@@ -1700,7 +1713,7 @@ IN_PROC_BROWSER_TEST_F(BraveRewardsBrowserTest,
       ui_test_utils::BROWSER_TEST_WAIT_FOR_NAVIGATION);
 
   // Ensure that Twitter tips injection is not active
-  EXPECT_FALSE(IsTwitterTipsInjected());
+  EXPECT_FALSE(IsMediaTipsInjected());
 }
 
 // Brave tip icon is not injected into non-Twitter sites
@@ -1716,8 +1729,53 @@ IN_PROC_BROWSER_TEST_F(BraveRewardsBrowserTest,
       ui_test_utils::BROWSER_TEST_WAIT_FOR_NAVIGATION);
 
   // Ensure that Twitter tips injection is not active
-  EXPECT_FALSE(IsTwitterTipsInjected());
+  EXPECT_FALSE(IsMediaTipsInjected());
 }
+
+// Brave tip icon is injected when visiting Reddit
+IN_PROC_BROWSER_TEST_F(BraveRewardsBrowserTest, RedditTipsInjectedOnReddit) {
+  // Enable Rewards
+  EnableRewards();
+
+  // Navigate to Reddit in a new tab
+  GURL url = https_server()->GetURL("reddit.com", "/reddit");
+  ui_test_utils::NavigateToURLWithDisposition(
+      browser(), url, WindowOpenDisposition::NEW_FOREGROUND_TAB,
+      ui_test_utils::BROWSER_TEST_WAIT_FOR_NAVIGATION);
+
+  // Ensure that Reddit Tips injection is active
+  EXPECT_TRUE(IsMediaTipsInjected());
+}
+
+// Brave tip icon is injected when visiting Reddit
+IN_PROC_BROWSER_TEST_F(BraveRewardsBrowserTest,
+                       RedditTipsNotInjectedWhenRewardsDisabled) {
+  // Navigate to Reddit in a new tab
+  GURL url = https_server()->GetURL("reddit.com", "/reddit");
+  ui_test_utils::NavigateToURLWithDisposition(
+      browser(), url, WindowOpenDisposition::NEW_FOREGROUND_TAB,
+      ui_test_utils::BROWSER_TEST_WAIT_FOR_NAVIGATION);
+
+  // Ensure that Reddit Tips injection is active
+  EXPECT_FALSE(IsMediaTipsInjected());
+}
+
+// Brave tip icon is injected when visiting Reddit
+IN_PROC_BROWSER_TEST_F(BraveRewardsBrowserTest,
+                       RedditTipsNotInjectedOnNonReddit) {
+  // Enable Rewards
+  EnableRewards();
+
+  // Navigate to Reddit in a new tab
+  GURL url = https_server()->GetURL("brave.com", "/reddit");
+  ui_test_utils::NavigateToURLWithDisposition(
+      browser(), url, WindowOpenDisposition::NEW_FOREGROUND_TAB,
+      ui_test_utils::BROWSER_TEST_WAIT_FOR_NAVIGATION);
+
+  // Ensure that Reddit Tips injection is active
+  EXPECT_FALSE(IsMediaTipsInjected());
+}
+
 
 // Check pending contributions
 IN_PROC_BROWSER_TEST_F(BraveRewardsBrowserTest,

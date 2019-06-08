@@ -116,6 +116,11 @@ void Media::SaveMediaInfo(const std::string& type,
     media_twitter_->SaveMediaInfo(data, callback);
     return;
   }
+
+  if (type == REDDIT_MEDIA_TYPE) {
+    media_reddit_->SaveMediaInfo(data, callback);
+    return;
+  }
 }
 
 // static

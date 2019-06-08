@@ -43,6 +43,7 @@ declare namespace Rewards {
     createdTimestamp: number | null
     currentGrant?: Grant
     donationAbilityTwitter: boolean
+    donationAbilityReddit: boolean
     donationAbilityYT: boolean
     enabledAds: boolean
     enabledAdsMigrated: boolean
@@ -50,6 +51,7 @@ declare namespace Rewards {
     enabledMain: boolean
     inlineTip: {
       twitter: boolean
+      reddit: boolean
     }
     excludedList: ExcludedPublisher[]
     firstLoad: boolean | null

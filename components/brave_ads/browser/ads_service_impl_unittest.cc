@@ -162,6 +162,10 @@ class MockRewardsService : public RewardsService {
 
   MOCK_METHOD1(GetPendingContributionsTotalUI, void(
     const brave_rewards::GetPendingContributionsTotalCallback& callback));
+
+  MOCK_METHOD2(SaveRedditPublisherInfo,
+             void(const std::map<std::string, std::string>&,
+                  brave_rewards::SaveMediaInfoCallback));
 };
 
 class AdsServiceTest : public testing::Test {

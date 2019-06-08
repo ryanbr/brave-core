@@ -182,7 +182,8 @@ describe('rewards reducer', () => {
 
       const expectedState: Rewards.State = {
         inlineTip: {
-          twitter: true
+          twitter: true,
+          reddit: true
         }
       }
 
@@ -205,7 +206,8 @@ describe('rewards reducer', () => {
 
       const expectedState: Rewards.State = { ...defaultState }
       expectedState.inlineTip = {
-        twitter: true
+        twitter: true,
+        reddit: true
       }
 
       const assertion = reducers({
@@ -227,7 +229,8 @@ describe('rewards reducer', () => {
 
       const expectedState: Rewards.State = { ...defaultState }
       expectedState.inlineTip = {
-        twitter: true
+        twitter: true,
+        reddit: true
       }
 
       const assertion = reducers({
@@ -249,7 +252,8 @@ describe('rewards reducer', () => {
 
       const expectedState: Rewards.State = { ...defaultState }
       expectedState.inlineTip = {
-        twitter: false
+        twitter: false,
+        reddit: true
       }
 
       const assertion = reducers({

@@ -41,6 +41,12 @@ declare namespace RewardsTip {
     tweetText: string
   }
 
+  interface RedditMetaData {
+    userName: string
+    postText: string
+    postRelDate: string
+  }
+
   export interface WalletProperties {
     balance: number
     choices: number[]
