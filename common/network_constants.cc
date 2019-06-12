@@ -17,6 +17,10 @@ const char kBraveReferralsInitPath[] = "/promo/initialize/nonua";
 const char kBraveReferralsActivityPath[] = "/promo/activity";
 
 const char kBraveSafeBrowsingFileCheckProxy[] = "sb-ssl.brave.com";
+const char kBraveGoogleAPIProxy[] = "apis.brave.com";
+
+// To-Do(@jumde): Update to redirector.brave.com when the endpoint is renamed
+const char kBraveRedirectorProxy[] = "crlsets.brave.com";
 
 const char kCRXDownloadPrefix[] =
     "*://clients2.googleusercontent.com/crx/blobs/*crx*";
@@ -38,6 +42,9 @@ const char kCRLSetPrefix3[] =
 const char kCRLSetPrefix4[] =
     "*://storage.googleapis.com/update-delta/hfnkpimlhhgieaddgfemjhofmfblmnib"
     "/*crxd";
+const char kGoogleAPIPrefix[] = "https://www.googleapis.com/";
+const char kChromeCastPrefix[] =
+    "*://*.gvt1.com/edgedl/chromewebstore/*pkedcjkdefgpdelpbcmbmeomcjbeemfm*";
 const char kGoogleTagManagerPattern[] =
     "https://www.googletagmanager.com/gtm.js";
 const char kGoogleTagServicesPattern[] =

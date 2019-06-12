@@ -10,6 +10,7 @@
 #include "brave/browser/net/cookie_network_delegate_helper.h"
 #include "brave/browser/net/brave_httpse_network_delegate_helper.h"
 #include "brave/browser/net/brave_site_hacks_network_delegate_helper.h"
+#include "brave/browser/net/brave_static_redirect_network_delegate_helper.h"
 #include "brave/browser/tor/buildflags.h"
 #include "brave/browser/translate/buildflags/buildflags.h"
 #include "brave/common/pref_names.h"
@@ -53,6 +54,9 @@ BraveProfileNetworkDelegate::BraveProfileNetworkDelegate(
 
   callback =
       base::Bind(brave::OnBeforeURLRequest_HttpsePreFileWork);
+  before_url_request_callbacks_.push_back(callback);
+
+  callback = base::Bind(brave::OnBeforeURLRequest_StaticRedirectWork);
   before_url_request_callbacks_.push_back(callback);
 
   callback =

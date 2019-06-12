@@ -24,6 +24,8 @@ int OnBeforeURLRequest_StaticRedirectWork(
                                          kSafeBrowsingPrefix);
   static URLPattern safebrowsingfilecheck_pattern(URLPattern::SCHEME_HTTPS,
                                          kSafeBrowsingFileCheckPrefix);
+  static URLPattern googleapis_pattern(
+      URLPattern::SCHEME_HTTP | URLPattern::SCHEME_HTTPS, kGoogleAPIPrefix);
   static URLPattern crlSet_pattern1(
       URLPattern::SCHEME_HTTP | URLPattern::SCHEME_HTTPS, kCRLSetPrefix1);
   static URLPattern crlSet_pattern2(
@@ -34,6 +36,8 @@ int OnBeforeURLRequest_StaticRedirectWork(
       URLPattern::SCHEME_HTTP | URLPattern::SCHEME_HTTPS, kCRLSetPrefix4);
   static URLPattern crxDownload_pattern(
       URLPattern::SCHEME_HTTP | URLPattern::SCHEME_HTTPS, kCRXDownloadPrefix);
+  static URLPattern chromecast_pattern(
+      URLPattern::SCHEME_HTTP | URLPattern::SCHEME_HTTPS, kChromeCastPrefix);
 #if BUILDFLAG(ENABLE_BRAVE_TRANSLATE)
   static URLPattern translate_pattern(URLPattern::SCHEME_HTTPS,
       kTranslateElementJSPattern);
@@ -53,6 +57,20 @@ int OnBeforeURLRequest_StaticRedirectWork(
 
   if (safebrowsingfilecheck_pattern.MatchesHost(ctx->request_url)) {
     replacements.SetHostStr(kBraveSafeBrowsingFileCheckProxy);
+    ctx->new_url_spec = ctx->request_url.ReplaceComponents(replacements).spec();
+    return net::OK;
+  }
+
+  if (googleapis_pattern.MatchesHost(ctx->request_url)) {
+    replacements.SetSchemeStr("https");
+    replacements.SetHostStr(kBraveGoogleAPIProxy);
+    ctx->new_url_spec = ctx->request_url.ReplaceComponents(replacements).spec();
+    return net::OK;
+  }
+
+  if (chromecast_pattern.MatchesURL(ctx->request_url)) {
+    replacements.SetSchemeStr("https");
+    replacements.SetHostStr(kBraveRedirectorProxy);
     ctx->new_url_spec = ctx->request_url.ReplaceComponents(replacements).spec();
     return net::OK;
   }

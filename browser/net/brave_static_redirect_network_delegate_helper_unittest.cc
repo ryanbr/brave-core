@@ -305,6 +305,54 @@ TEST_F(BraveStaticRedirectNetworkDelegateHelperTest,
   EXPECT_EQ(ret, net::OK);
 }
 
+TEST_F(BraveStaticRedirectNetworkDelegateHelperTest,
+    RedirectChromecastDownload) {
+  net::TestDelegate test_delegate;
+  GURL url(
+      "http://redirector.gvt1.com/edgedl/chromewebstore/"
+      "L2Nocm9tZV9leHRlbnNpb24vYmxvYnMvOWVmQUFXS041NV9ZVXlJVWwxbGc5TUM4dw/"
+      "7519.422.0.3_pkedcjkdefgpdelpbcmbmeomcjbeemfm.crx");
+  std::unique_ptr<net::URLRequest> request = context()->CreateRequest(
+      url, net::IDLE, &test_delegate, TRAFFIC_ANNOTATION_FOR_TESTS);
+
+  std::shared_ptr<brave::BraveRequestInfo> before_url_context(
+      new brave::BraveRequestInfo());
+  brave::BraveRequestInfo::FillCTXFromRequest(request.get(),
+                                              before_url_context);
+  brave::ResponseCallback callback;
+
+  int ret = OnBeforeURLRequest_StaticRedirectWork(callback,
+      before_url_context);
+  GURL redirect = GURL(before_url_context->new_url_spec);
+  EXPECT_EQ(redirect.host(), kBraveRedirectorProxy);
+  EXPECT_TRUE(redirect.SchemeIs(url::kHttpsScheme));
+  EXPECT_EQ(redirect.path(), url.path());
+  EXPECT_EQ(ret, net::OK);
+}
+
+TEST_F(BraveStaticRedirectNetworkDelegateHelperTest,
+    RedirectGoogleAPIs) {
+  net::TestDelegate test_delegate;
+  GURL url(
+      "http://www.googleapis.com/chromewebstore/v1.1/items/verify");
+  std::unique_ptr<net::URLRequest> request = context()->CreateRequest(
+      url, net::IDLE, &test_delegate, TRAFFIC_ANNOTATION_FOR_TESTS);
+
+  std::shared_ptr<brave::BraveRequestInfo> before_url_context(
+      new brave::BraveRequestInfo());
+  brave::BraveRequestInfo::FillCTXFromRequest(request.get(),
+                                              before_url_context);
+  brave::ResponseCallback callback;
+
+  int ret = OnBeforeURLRequest_StaticRedirectWork(callback,
+      before_url_context);
+  GURL redirect = GURL(before_url_context->new_url_spec);
+  EXPECT_EQ(redirect.host(), kBraveGoogleAPIProxy);
+  EXPECT_TRUE(redirect.SchemeIs(url::kHttpsScheme));
+  EXPECT_EQ(redirect.path(), url.path());
+  EXPECT_EQ(ret, net::OK);
+}
+
 #if BUILDFLAG(ENABLE_BRAVE_TRANSLATE)
 TEST_F(BraveStaticRedirectNetworkDelegateHelperTest, RedirectTranslate) {
   net::TestDelegate test_delegate;
