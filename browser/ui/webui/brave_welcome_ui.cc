@@ -11,6 +11,7 @@
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/browser_finder.h"
 #include "chrome/browser/ui/chrome_pages.h"
+#include "chrome/browser/ui/webui/settings/settings_import_data_handler.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/webui_url_constants.h"
 #include "components/grit/brave_components_resources.h"
@@ -20,54 +21,11 @@
 
 using content::WebUIMessageHandler;
 
-namespace {
-
-// The handler for Javascript messages for the chrome://welcome page
-class WelcomeDOMHandler : public WebUIMessageHandler {
- public:
-  WelcomeDOMHandler() {
-  }
-  ~WelcomeDOMHandler() override {}
-
-  void Init();
-
-  // WebUIMessageHandler implementation.
-  void RegisterMessages() override;
-
- private:
-  void HandleImportNowRequested(const base::ListValue* args);
-  void OnWalletInitialized(int result_code);
-  Browser* GetBrowser();
-  DISALLOW_COPY_AND_ASSIGN(WelcomeDOMHandler);
-};
-
-Browser* WelcomeDOMHandler::GetBrowser() {
-  return chrome::FindBrowserWithWebContents(web_ui()->GetWebContents());
-}
-
-void WelcomeDOMHandler::RegisterMessages() {
-  web_ui()->RegisterMessageCallback("importNowRequested",
-      base::BindRepeating(&WelcomeDOMHandler::HandleImportNowRequested,
-                          base::Unretained(this)));
-}
-
-void WelcomeDOMHandler::Init() {
-}
-
-void WelcomeDOMHandler::HandleImportNowRequested(const base::ListValue* args) {
-  chrome::ShowSettingsSubPageInTabbedBrowser(GetBrowser(), chrome::kImportDataSubPage);
-}
-
-}  // namespace
-
 BraveWelcomeUI::BraveWelcomeUI(content::WebUI* web_ui, const std::string& name)
     : BasicUI(web_ui, name, kBraveWelcomeGenerated,
         kBraveWelcomeGeneratedSize, IDR_BRAVE_WELCOME_HTML) {
+  web_ui->AddMessageHandler(std::make_unique<settings::ImportDataHandler>());
 
-  auto handler_owner = std::make_unique<WelcomeDOMHandler>();
-  WelcomeDOMHandler* handler = handler_owner.get();
-  web_ui->AddMessageHandler(std::move(handler_owner));
-  handler->Init();
   Profile* profile = Profile::FromWebUI(web_ui);
   profile->GetPrefs()->SetBoolean(prefs::kHasSeenWelcomePage, true);
 #if defined(OS_WIN)
