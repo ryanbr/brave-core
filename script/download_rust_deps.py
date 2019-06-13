@@ -26,6 +26,8 @@ def GetUrl(platform):
         filename = "rust_deps_mac_" + RUST_DEPS_PACKAGE_VERSION + ".gz"
     elif platform.startswith('linux'):
         filename = "rust_deps_linux_" + RUST_DEPS_PACKAGE_VERSION + ".gz"
+    elif platform == 'android':
+        filename = "rust_deps_linux_" + RUST_DEPS_PACKAGE_VERSION + ".gz"
     else:
         print 'Invalid platform for Rust deps %s' % platform
         print 'Exiting.'
