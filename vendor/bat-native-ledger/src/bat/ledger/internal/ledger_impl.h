@@ -480,6 +480,8 @@ class LedgerImpl : public ledger::Ledger,
 
   bool WasPublisherAlreadyProcessed(const std::string& publisher_key) const;
 
+  std::string GetUpholdToken();
+
  private:
   void AddRecurringPayment(const std::string& publisher_id,
                            const double& value) override;

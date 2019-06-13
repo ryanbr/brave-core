@@ -1628,8 +1628,6 @@ void LedgerImpl::OnContributeUnverifiedPublishers(
                                                    publisher_name);
 }
 
-
-
 void LedgerImpl::SavePublisherProcessed(const std::string& publisher_key) {
   bat_publishers_->SavePublisherProcessed(publisher_key);
 }
@@ -1637,6 +1635,10 @@ void LedgerImpl::SavePublisherProcessed(const std::string& publisher_key) {
 bool LedgerImpl::WasPublisherAlreadyProcessed(
     const std::string& publisher_key) const {
   return bat_publishers_->WasPublisherAlreadyProcessed(publisher_key);
+}
+
+std::string LedgerImpl::GetUpholdToken() {
+  return "token";
 }
 
 }  // namespace bat_ledger
