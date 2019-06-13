@@ -20,6 +20,27 @@ class BraveShieldsAllowScriptsOnceFunction : public UIThreadExtensionFunction {
   ResponseAction Run() override;
 };
 
+class BraveShieldsDappDetectionEnabledFunction
+    : public UIThreadExtensionFunction {
+ public:
+  DECLARE_EXTENSION_FUNCTION("braveShields.dappDetectionEnabled", UNKNOWN)
+
+ protected:
+  ~BraveShieldsDappDetectionEnabledFunction() override {}
+
+  ResponseAction Run() override;
+};
+
+class BraveShieldsDappAvailableFunction : public UIThreadExtensionFunction {
+ public:
+  DECLARE_EXTENSION_FUNCTION("braveShields.dappAvailable", UNKNOWN)
+
+ protected:
+  ~BraveShieldsDappAvailableFunction() override {}
+
+  ResponseAction Run() override;
+};
+
 class BraveShieldsContentSettingGetFunction
     : public UIThreadExtensionFunction {
  public:

@@ -120,6 +120,9 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry) {
 
   // IPFS companion extension
   registry->RegisterBooleanPref(kIPFSCompanionEnabled, false);
+
+  // Dapp detection
+  registry->RegisterBooleanPref(kDappDetectionEnabled, true);
 }
 
 }  // namespace brave

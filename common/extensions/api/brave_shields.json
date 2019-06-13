@@ -49,6 +49,42 @@
             "parameters": []
           }
         ]
+      },
+      {
+        "name": "dappDetectionEnabled",
+        "type": "function",
+        "description": "Get whether dapp detection is enabled or not",
+        "parameters": [
+          {
+            "type": "function",
+            "name": "callback",
+            "description": "Function called when dap detection prefs are fetched",
+            "parameters": [
+              {
+                "type": "boolean",
+                "name": "enabled"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "dappAvailable",
+        "type": "function",
+        "description": "Called when website is dapp",
+        "parameters": [
+          {
+            "name": "tabID",
+            "type": "integer"
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+            ]
+          }
+        ]
       }
     ],
     "types": [

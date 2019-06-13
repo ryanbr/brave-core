@@ -1,0 +1,17 @@
+/* Copyright (c) 2019 The Brave Authors. All rights reserved.
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#ifndef BRAVE_BROWSER_DAPP_DAPP_UTILS_H_
+#define BRAVE_BROWSER_DAPP_DAPP_UTILS_H_
+
+namespace content {
+class BrowserContext;
+class WebContents;
+}
+
+bool DappDetectionEnabled(content::BrowserContext* browser_context);
+void RequestWallInstallationPermission(content::WebContents* web_contents);
+
+#endif  // BRAVE_BROWSER_DAPP_DAPP_UTILS_H_
