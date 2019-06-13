@@ -1866,8 +1866,33 @@ bool getJSONValue(const std::string& fieldName,
 
   // has parser errors or wrong types
   bool error = d.HasParseError() || (false == d.HasMember(fieldName.c_str()));
+
+  // ensure string type
+  rapidjson::Value* item = &d[fieldName.c_str()];
+  error = (item->GetType() == rapidjson::Type::kStringType) && error;
+
   if (!error) {
-    *value = d[fieldName.c_str()].GetString();
+    *value = item->GetString();
+  }
+  return !error;
+}
+
+bool getJSONIntValue(const std::string& fieldName,
+                  const std::string& json,
+                  int64_t* value) {
+
+  rapidjson::Document d;
+  d.Parse(json.c_str());
+
+  // has parser errors or wrong types
+  bool error = d.HasParseError() || (false == d.HasMember(fieldName.c_str()));
+
+  // ensure number type
+  rapidjson::Value* item = &d[fieldName.c_str()];
+  error = (item->GetType() == rapidjson::Type::kNumberType) && error;
+
+  if (!error) {
+    *value = item->GetInt64();
   }
   return !error;
 }

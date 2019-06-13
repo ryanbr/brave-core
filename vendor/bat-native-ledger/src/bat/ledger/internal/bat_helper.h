@@ -450,6 +450,10 @@ bool getJSONValue(const std::string& fieldName,
                   const std::string& json,
                   std::string* value);
 
+bool getJSONIntValue(const std::string& fieldName,
+                  const std::string& json,
+                  int64_t* value);
+
 bool getJSONList(const std::string& fieldName,
                  const std::string& json,
                  std::vector<std::string>* value);

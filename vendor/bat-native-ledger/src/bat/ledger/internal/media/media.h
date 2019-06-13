@@ -15,6 +15,7 @@
 #include "bat/ledger/internal/media/twitch.h"
 #include "bat/ledger/internal/media/twitter.h"
 #include "bat/ledger/internal/media/youtube.h"
+#include "bat/ledger/internal/media/github.h"
 #include "bat/ledger/ledger.h"
 
 namespace bat_ledger {
@@ -36,9 +37,7 @@ class Media {
   void ProcessMedia(const std::map<std::string, std::string>& parts,
                     const std::string& type,
                     ledger::VisitDataPtr visit_data);
-
-  void GetMediaActivityFromUrl(uint64_t windowId,
-                               ledger::VisitDataPtr visit_data,
+  void GetMediaActivityFromUrl(uint64_t windowId, ledger::VisitDataPtr visit_data,
                                const std::string& type,
                                const std::string& publisher_blob);
 
@@ -60,6 +59,7 @@ class Media {
   std::unique_ptr<braveledger_media::Twitch> media_twitch_;
   std::unique_ptr<braveledger_media::Twitter> media_twitter_;
   std::unique_ptr<braveledger_media::Reddit> media_reddit_;
+  std::unique_ptr<braveledger_media::GitHub> media_github_;
 };
 
 }  // namespace braveledger_media
