@@ -162,30 +162,27 @@ bool PublisherInfoDatabase::InsertContributionInfo(
   return statement.Run();
 }
 
-void PublisherInfoDatabase::GetAllTransactions(ledger::PublisherInfoList* list,
-                                               ledger::ACTIVITY_MONTH month,
-                                               int year) {
-  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
+// void PublisherInfoDatabase::GetAllTransactions(ledger::PublisherInfoList* list,
+//                                                ledger::ACTIVITY_MONTH month,
+//                                                int year) {
+//   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
 
-  bool initialized = Init();
-  DCHECK(initialized);
+//   bool initialized = Init();
+//   DCHECK(initialized);
 
-  if(!initialized) {
-    return;
-  }
+//   if(!initialized) {
+//     return;
+//   }
 
-  sql::Statement info_sql(db_.GetUniqueStatement(
-      "SELECT pi.publisher_id, pi.name, pi.verified, pi.favicon, "
-      "pi.provider, ci.probi, ci.date, ci.category, ci.month, ci.year, "
-      "ai.percent "
-      "FROM contribution_info as ci "
-      "INNER JOIN publisher_info AS pi ON ci.publisher_id = pi.publisher_id "
-      "INNER JOIN activity_info AS ai ON ci.publisher_id = ai.publisher_id "));
-      while (info_sql.Step()) {
-        auto BalanceReportInfo balance_report_info =
-            new BalanceReportInfo();
-      }
-}
+//   sql::Statement info_sql(db_.GetUniqueStatement(
+//       "SELECT pi.publisher_id, pi.name, pi.verified, pi.favicon, "
+//       "pi.provider, ci.probi, ci.date, ci.category, ci.month, ci.year, "
+//       "ai.percent "
+//       "FROM contribution_info as ci "
+//       "INNER JOIN publisher_info AS pi ON ci.publisher_id = pi.publisher_id "
+//       "INNER JOIN activity_info AS ai ON ci.publisher_id = ai.publisher_id "));
+
+// }
 
 void PublisherInfoDatabase::GetOneTimeTips(ledger::PublisherInfoList* list,
                                            ledger::ACTIVITY_MONTH month,
