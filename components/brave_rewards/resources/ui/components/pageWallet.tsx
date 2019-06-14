@@ -39,7 +39,7 @@ interface Props extends Rewards.ComponentProps {
 }
 
 class PageWallet extends React.Component<Props, State> {
-  constructor(props: Props) {
+  constructor (props: Props) {
     super(props)
     this.state = {
       activeTabId: 0,
@@ -50,11 +50,11 @@ class PageWallet extends React.Component<Props, State> {
     }
   }
 
-  get actions() {
+  get actions () {
     return this.props.actions
   }
 
-  componentDidMount() {
+  componentDidMount () {
     this.isAddFundsUrl()
     this.isBackupUrl()
   }
@@ -110,7 +110,7 @@ class PageWallet extends React.Component<Props, State> {
     const a = document.createElement('a')
     document.body.appendChild(a)
     a.style.display = 'display: none'
-    const blob = new Blob([backupString], { type: 'plain/text' })
+    const blob = new Blob([backupString], { type : 'plain/text' })
     const url = window.URL.createObjectURL(blob)
     a.href = url
     a.download = backupFileText
@@ -219,12 +219,12 @@ class PageWallet extends React.Component<Props, State> {
     this.onModalAddFundsToggle()
   }
 
-  onModalActivityAction(action: string) {
+  onModalActivityAction (action: string) {
     // TODO NZ implement
     console.log(action)
   }
 
-  onModalActivityRemove() {
+  onModalActivityRemove () {
     // TODO NZ implement
     console.log('onModalActivityRemove')
   }
@@ -259,8 +259,8 @@ class PageWallet extends React.Component<Props, State> {
         node: (
           <>
             <b>{getLocale('uhOh')}</b> {getLocale('walletCorrupted')} <a href={'#'} style={{ 'color': '#838391' }} onClick={this.onModalBackupOpen}>
-              {getLocale('walletCorruptedNow')}
-            </a>
+               {getLocale('walletCorruptedNow')}
+             </a>
           </>
         ),
         type: 'error'
@@ -293,7 +293,7 @@ class PageWallet extends React.Component<Props, State> {
       }
     }
 
-    let result: { report: Record<string, { tokens: string, converted: string }>, onSeeAllReserved?: () => {} } = {
+    let result: {report: Record<string, {tokens: string, converted: string}>, onSeeAllReserved?: () => {}} = {
       report: props,
       onSeeAllReserved: undefined
     }
@@ -346,7 +346,7 @@ class PageWallet extends React.Component<Props, State> {
     this.actions.removeAllPendingContribution()
   }
 
-  render() {
+  render () {
     const {
       connectedWallet,
       recoveryKey,
