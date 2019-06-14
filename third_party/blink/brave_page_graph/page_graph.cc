@@ -22,6 +22,7 @@
 #include "brave/third_party/blink/brave_page_graph/graphml.h"
 #include "brave/third_party/blink/brave_page_graph/graph_item/edge/edge_attribute_set.h"
 #include "brave/third_party/blink/brave_page_graph/graph_item/edge/edge_attribute_delete.h"
+#include "brave/third_party/blink/brave_page_graph/graph_item/edge/edge_cross_dom.h"
 #include "brave/third_party/blink/brave_page_graph/graph_item/edge/edge_execute.h"
 #include "brave/third_party/blink/brave_page_graph/graph_item/edge/edge_execute_attr.h"
 #include "brave/third_party/blink/brave_page_graph/graph_item/edge/edge_node_create.h"
@@ -35,6 +36,7 @@
 #include "brave/third_party/blink/brave_page_graph/graph_item/edge/request/edge_request_complete.h"
 #include "brave/third_party/blink/brave_page_graph/graph_item/node/node_actor.h"
 #include "brave/third_party/blink/brave_page_graph/graph_item/node/node_extension.h"
+#include "brave/third_party/blink/brave_page_graph/graph_item/node/node_dom_root.h"
 #include "brave/third_party/blink/brave_page_graph/graph_item/node/node_html.h"
 #include "brave/third_party/blink/brave_page_graph/graph_item/node/node_html_element.h"
 #include "brave/third_party/blink/brave_page_graph/graph_item/node/node_html_text.h"
@@ -88,7 +90,7 @@ PageGraph::PageGraph() :
     shields_node_(new NodeShields(this)),
     cookie_jar_node_(new NodeStorageCookieJar(this)),
     local_storage_node_(new NodeStorageLocalStorage(this)),
-    html_root_node_(new NodeHTMLElement(this, kRootNodeId, "(root)")) {
+    html_root_node_(new NodeDOMRoot(this, kRootNodeId)) {
   PG_LOG("init");
   AddNode(parser_node_);
   AddNode(shields_node_);
@@ -131,11 +133,17 @@ void PageGraph::RegisterHTMLElementNodeCreated(const DOMNodeId node_id,
     + " (" + local_tag_name + ")");
 
   LOG_ASSERT(element_nodes_.count(node_id) == 0);
-  NodeHTMLElement* const new_node = new NodeHTMLElement(this,
-    node_id, local_tag_name);
+
+  NodeHTMLElement* new_node = nullptr;
+  if (node_id < 0) {
+    new_node = new NodeDOMRoot(this, -node_id);
+    element_nodes_.emplace(-node_id, new_node);
+  } else {
+    new_node = new NodeHTMLElement(this, node_id, local_tag_name);
+    element_nodes_.emplace(node_id, new_node);
+  }
 
   AddNode(new_node);
-  element_nodes_.emplace(node_id, new_node);
 
   NodeActor* const acting_node = GetCurrentActingNode();
 
@@ -169,22 +177,44 @@ void PageGraph::RegisterHTMLTextNodeCreated(const DOMNodeId node_id,
 
 void PageGraph::RegisterHTMLElementNodeInserted(const DOMNodeId node_id,
     const DOMNodeId parent_node_id, const DOMNodeId before_sibling_id) {
+  DOMNodeId real_parent_node_id;
+  if (parent_node_id < 0) {
+    // This is a cross-DOM edge, |parent_node_id| should be an iframe
+    // and |node_id| is a Document.
+    NodeHTMLElement *parent_iframe_node = element_nodes_.at(-parent_node_id);
+    LOG_ASSERT(parent_iframe_node->TagName() == "iframe");
 
-  const DOMNodeId inserted_parent_node_id = (parent_node_id)
-    ? parent_node_id
+    real_parent_node_id = -parent_node_id;
+    PG_LOG("RegisterHTMLElementNodeInserted) node id: " + to_string(node_id)
+        + ", parent id: " + to_string(real_parent_node_id)
+        + ", prev sibling id: " + to_string(before_sibling_id)
+        + ", is cross-DOM");
+  } else {
+    real_parent_node_id = parent_node_id;
+    PG_LOG("RegisterHTMLElementNodeInserted) node id: " + to_string(node_id)
+        + ", parent id: " + to_string(real_parent_node_id)
+        + ", prev sibling id: " + to_string(before_sibling_id));
+  }
+
+  const DOMNodeId inserted_parent_node_id = (real_parent_node_id)
+    ? real_parent_node_id
     : kRootNodeId;
 
-  PG_LOG("RegisterHTMLElementNodeInserted) node id: " + to_string(node_id)
-    + ", parent id: " + to_string(inserted_parent_node_id)
-    + ", prev sibling id: " + to_string(before_sibling_id));
+  LOG_ASSERT(element_nodes_.count(inserted_parent_node_id) == 1);
 
   LOG_ASSERT(element_nodes_.count(node_id) == 1);
   NodeHTMLElement* const inserted_node = element_nodes_.at(node_id);
 
   NodeActor* const acting_node = GetCurrentActingNode();
 
-  const EdgeNodeInsert* const edge = new EdgeNodeInsert(this,
-    acting_node, inserted_node, inserted_parent_node_id, before_sibling_id);
+  const EdgeNodeInsert* edge = nullptr;
+  if (parent_node_id < 0) {
+    edge = new EdgeCrossDOM(this, acting_node, inserted_node,
+        inserted_parent_node_id, before_sibling_id);
+  } else {
+    edge = new EdgeNodeInsert(this, acting_node, inserted_node,
+        inserted_parent_node_id, before_sibling_id);
+  }
   AddEdge(edge);
 
   inserted_node->AddInEdge(edge);
@@ -474,6 +504,7 @@ void PageGraph::RegisterScriptCompilation(
   // graph, but isn't connected to anything.  That association
   NodeScript* const code_node = new NodeScript(this, script_id, type);
   AddNode(code_node);
+  std::cout << "Adding script_id: " << script_id << " " << (void *)this << "\n";
   script_nodes_.emplace(script_id, code_node);
 
   const ScriptTrackerScriptSource script_source =
@@ -538,6 +569,8 @@ void PageGraph::RegisterScriptExecStart(const ScriptId script_id) {
       PG_LOG(" - " + to_string(script_pair.first));
     }
   }
+  if (script_nodes_.count(script_id) != 1)
+    std::cout << "CRASH! " << (void *)this << " " << script_id <<"\n";
   LOG_ASSERT(script_nodes_.count(script_id) == 1);
   PushActiveScript(script_id);
 }

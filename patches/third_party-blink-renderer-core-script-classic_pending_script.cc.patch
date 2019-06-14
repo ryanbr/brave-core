@@ -1,8 +1,8 @@
 diff --git a/third_party/blink/renderer/core/script/classic_pending_script.cc b/third_party/blink/renderer/core/script/classic_pending_script.cc
-index 8aba929165932a5472e4642b8805b164980e954e..4932c631238a07b2cefa7424d09f8a834cfe94e9 100644
+index 8aba929165932a5472e4642b8805b164980e954e..e213c41fc2513c972f39720571d071e083ae780f 100644
 --- a/third_party/blink/renderer/core/script/classic_pending_script.cc
 +++ b/third_party/blink/renderer/core/script/classic_pending_script.cc
-@@ -30,6 +30,14 @@
+@@ -30,6 +30,16 @@
  #include "third_party/blink/renderer/platform/runtime_enabled_features.h"
  #include "third_party/blink/renderer/platform/wtf/functional.h"
  
@@ -14,10 +14,12 @@ index 8aba929165932a5472e4642b8805b164980e954e..4932c631238a07b2cefa7424d09f8a83
 +#include "brave/third_party/blink/brave_page_graph/page_graph.h"
 +#endif
 +
++#include <iostream>
++
  namespace blink {
  
  // <specdef href="https://html.spec.whatwg.org/C/#fetch-a-classic-script">
-@@ -64,8 +72,24 @@ ClassicPendingScript* ClassicPendingScript::Fetch(
+@@ -64,8 +74,24 @@ ClassicPendingScript* ClassicPendingScript::Fetch(
    // We allow streaming, as WatchForLoad() is always called when the script
    // needs to execute and the ScriptResource is not finished, so
    // SetClientIsWaitingForFinished is always set on the resource.
@@ -42,7 +44,7 @@ index 8aba929165932a5472e4642b8805b164980e954e..4932c631238a07b2cefa7424d09f8a83
    pending_script->CheckState();
    return pending_script;
  }
-@@ -273,6 +297,20 @@ void ClassicPendingScript::NotifyFinished(Resource* resource) {
+@@ -273,6 +299,20 @@ void ClassicPendingScript::NotifyFinished(Resource* resource) {
                                           GetResource()->Url().GetString()));
  
    bool error_occurred = GetResource()->ErrorOccurred() || integrity_failure_;
@@ -63,7 +65,7 @@ index 8aba929165932a5472e4642b8805b164980e954e..4932c631238a07b2cefa7424d09f8a83
    AdvanceReadyState(error_occurred ? kErrorOccurred : kReady);
  }
  
-@@ -376,6 +414,17 @@ ClassicScript* ClassicPendingScript::GetSource(const KURL& document_url) const {
+@@ -376,6 +416,26 @@ ClassicScript* ClassicPendingScript::GetSource(const KURL& document_url) const {
  
    ScriptSourceCode source_code(streamer_ready ? streamer : nullptr, resource,
                                 not_streamed_reason);
@@ -73,6 +75,15 @@ index 8aba929165932a5472e4642b8805b164980e954e..4932c631238a07b2cefa7424d09f8a83
 +    ::brave_page_graph::PageGraph* page_graph = GetElement()->GetDocument()
 +      .GetPageGraph();
 +    if (page_graph != nullptr) {
++      if (resource->Url() == "https://cdn.optimizely.com/public/3013110282/s/vi_article.js") {
++        const Document* document = &(GetElement()->GetDocument());
++        const Document* top_document = &(document->TopDocument());
++        std::cout << "Found problem script "
++            << (document == top_document) << " "
++            << (void *)document << " " << document->Url() << " "
++            << (void *)top_document << " " << top_document->Url() << " "
++            << (void *)page_graph << "\n";
++      }
 +      page_graph->RegisterUrlForScriptSource(resource->Url(), source_code);
 +    }
 +  }

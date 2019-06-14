@@ -27,7 +27,7 @@ class EdgeRequestError;
 class EdgeRequestStart;
 class NodeResource;
 
-class NodeHTMLElement final : public NodeHTML, virtual public NodeRequester {
+class NodeHTMLElement : public NodeHTML, virtual public NodeRequester {
 friend class PageGraph;
 friend class NodeHTMLText;
 friend class NodeHTML;

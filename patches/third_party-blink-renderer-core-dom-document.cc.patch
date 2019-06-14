@@ -1,20 +1,23 @@
 diff --git a/third_party/blink/renderer/core/dom/document.cc b/third_party/blink/renderer/core/dom/document.cc
-index 1b73cb405b753fd8ab999100f53ba184f62f3b23..5a9922074263a45fe3adf489c3fbf51d8407b08e 100644
+index 1b73cb405b753fd8ab999100f53ba184f62f3b23..f323224d06160ebcc7f3abbfdd2f3ccb5d94613c 100644
 --- a/third_party/blink/renderer/core/dom/document.cc
 +++ b/third_party/blink/renderer/core/dom/document.cc
-@@ -310,6 +310,11 @@ using WeakDocumentSet = blink::HeapHashSet<blink::WeakMember<blink::Document>>;
+@@ -310,6 +310,14 @@ using WeakDocumentSet = blink::HeapHashSet<blink::WeakMember<blink::Document>>;
  static WeakDocumentSet& liveDocumentSet();
  #endif
  
 +#include "brave/third_party/blink/brave_page_graph/buildflags/buildflags.h"
 +#if BUILDFLAG(BRAVE_PAGE_GRAPH_ENABLED)
++#include "third_party/blink/renderer/modules/service_worker/service_worker_container.h"
++#include "third_party/blink/renderer/modules/storage/dom_window_storage_controller.h"
 +#include "brave/third_party/blink/brave_page_graph/page_graph.h"
 +#endif
++#include <iostream>
 +
  namespace blink {
  
  using namespace html_names;
-@@ -768,6 +773,10 @@ Document::Document(const DocumentInit& initializer,
+@@ -768,6 +776,10 @@ Document::Document(const DocumentInit& initializer,
  #ifndef NDEBUG
    liveDocumentSet().insert(this);
  #endif
@@ -25,7 +28,7 @@ index 1b73cb405b753fd8ab999100f53ba184f62f3b23..5a9922074263a45fe3adf489c3fbf51d
  }
  
  Document::~Document() {
-@@ -778,8 +787,26 @@ Document::~Document() {
+@@ -778,8 +790,81 @@ Document::~Document() {
    DCHECK(!ax_object_cache_);
  
    InstanceCounters::DecrementCounter(InstanceCounters::kDocumentCounter);
@@ -39,6 +42,7 @@ index 1b73cb405b753fd8ab999100f53ba184f62f3b23..5a9922074263a45fe3adf489c3fbf51d
  
 +#if BUILDFLAG(BRAVE_PAGE_GRAPH_ENABLED)
 +brave_page_graph::PageGraph* Document::GetPageGraph() {
++  /*
 +  if (page_graph_ == nullptr &&
 +      IsHTMLDocument() &&
 +      Url().ProtocolIsInHTTPFamily()) {
@@ -46,9 +50,108 @@ index 1b73cb405b753fd8ab999100f53ba184f62f3b23..5a9922074263a45fe3adf489c3fbf51d
 +    GetIsolate()->SetPageGraph(page_graph_);
 +  }
 +  return page_graph_;
++  */
++
++  if (!(IsHTMLDocument() && Url().ProtocolIsInHTTPFamily()))
++    return nullptr;
++
++  /*
++  auto supplements = Supplementable<Document>::supplements_;
++  const bool current_doc_is_not_service_worker = (
++    supplements.Contains(ServiceWorkerContainer::kSupplementName) ||
++    supplements.Contains(DOMWindowStorageController::kSupplementName));
++  if (current_doc_is_not_service_worker == false) {
++    std::cout << "Service worker: " << Url() << " " << (void *)this << "\n";
++    return nullptr;
++  }
++  */
++
++  brave_page_graph::PageGraph* ret;
++  Document* top_document = &(TopDocument());
++  if (top_document == this) {
++    if (page_graph_ == nullptr) {
++      page_graph_ = new brave_page_graph::PageGraph();
++      std::cout << "New PG for " << Url() << ", "
++          << (void *)page_graph_ << ", document: "
++          << (void *)this << ", IsInMainFrame "
++          << IsInMainFrame() << ", is_html_frame: "
++          << (bool)(GetScheduler() && GetScheduler()->ToFrameScheduler()) << "\n";
++
++      if (Url() == "https://www.nytimes.com/vi-assets/static-assets/service-worker-test-1560275198766.js") {
++        Frame* parent_frame = frame_->Tree().Parent();
++        std::cout << "Parent frame: " << (void *)parent_frame;
++        if (parent_frame) {
++          if (DynamicTo<LocalFrame>(parent_frame))
++            std::cout << " is LocalFrame";
++          else
++            std::cout << " is RemoteFrame";
++        }
++        if (GetFrame()) {
++          std::cout << ", has local frame";
++          if (GetFrame()->Client())
++            std::cout << ", and has frame client";
++          else
++            std::cout << ", and does NOT have frame client";
++        } else
++          std::cout << ", does NOT have local frame";
++        std::cout << "\n";
++      }
++    }
++    ret = page_graph_;
++  } else {
++    ret = top_document->GetPageGraph();
++  }
++  if (ret)
++    GetIsolate()->SetPageGraph(ret);
++  return ret;
 +}
 +#endif
 +
  Range* Document::CreateRangeAdjustedToTreeScope(const TreeScope& tree_scope,
                                                  const Position& position) {
    DCHECK(position.IsNotNull());
+@@ -2663,6 +2748,44 @@ StyleResolver& Document::EnsureStyleResolver() const {
+ }
+ 
+ void Document::Initialize() {
++#if BUILDFLAG(BRAVE_PAGE_GRAPH_ENABLED)
++  brave_page_graph::PageGraph* page_graph = GetPageGraph();
++  if (page_graph != nullptr) {
++    const DOMNodeId node_id = DOMNodeIds::IdForNode(this);
++    // TODO: Create a dedicated RegisterX function.
++    //
++    // Currently using negative number to indicate document root.
++    page_graph->RegisterHTMLElementNodeCreated(-node_id, "document");
++
++    // TODO: Create another PG register call for cross-DOM edges.
++    const Document* top = &(TopDocument());
++    if (this != top) {
++      // This document has a local iframe owner.
++      HTMLFrameOwnerElement* owner = LocalOwner();
++      DCHECK(owner != nullptr);
++
++      const DOMNodeId parent_node_id = DOMNodeIds::IdForNode(owner);
++      // TODO: The document node cannot have siblings? Maybe this sematics
++      // needs to be adjusted since the owner iframe can be navigated to
++      // many documents.
++      Node* const sibling = previousSibling();
++      if (sibling)
++        std::cout << Url() << ", sibling is not null\n";
++      const DOMNodeId sibling_node_id = (sibling)
++        ? DOMNodeIds::IdForNode(sibling)
++        : 0;
++
++      std::cout << "Document::Initialize, " << Url() << ", " <<
++          (void*)this << ", parent ID " <<
++          parent_node_id << ", node ID " <<
++          node_id << "\n";
++      // Use negative number to indicate that a cross-DOM edge is needed.
++      page_graph->RegisterHTMLElementNodeInserted(
++          node_id, -parent_node_id, sibling_node_id);
++    }
++  }
++#endif
++
+   DCHECK_EQ(lifecycle_.GetState(), DocumentLifecycle::kInactive);
+   DCHECK(!ax_object_cache_ || this != &AXObjectCacheOwner());
+ 
