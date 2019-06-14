@@ -15,6 +15,7 @@
 #include "bat/ledger/internal/contribution/phase_one.h"
 #include "bat/ledger/internal/contribution/phase_two.h"
 #include "bat/ledger/internal/contribution/unverified.h"
+#include "bat/ledger/internal/contribution/connected.h"
 #include "bat/ledger/internal/ledger_impl.h"
 #include "brave_base/random.h"
 
@@ -29,6 +30,7 @@ Contribution::Contribution(bat_ledger::LedgerImpl* ledger) :
     phase_one_(std::make_unique<PhaseOne>(ledger, this)),
     phase_two_(std::make_unique<PhaseTwo>(ledger, this)),
     unverified_(std::make_unique<Unverified>(ledger, this)),
+    connected_(std::make_unique<Connected>(ledger, this)),
     last_reconcile_timer_id_(0u) {
 }
 
@@ -338,12 +340,12 @@ void Contribution::OnWalletPropertiesForReconcile(
     return;
   }
 
-  phase_one_->Start(viewing_id,
-                    category,
-                    list,
-                    directions,
-                    budget,
-                    info->balance_);
+  ProcessReconcile(viewing_id,
+                   category,
+                   list,
+                   directions,
+                   budget,
+                   info->balance_);
 }
 
 void Contribution::InitReconcile(
@@ -632,6 +634,141 @@ void Contribution::ContributeUnverifiedPublishers() {
 
 void Contribution::StartPhaseTwo(const std::string& viewing_id) {
   phase_two_->Start(viewing_id);
+}
+
+bool Contribution::HaveReconcileEnoughFunds(
+    const ledger::REWARDS_CATEGORY category,
+    double* fee,
+    double budget,
+    const braveledger_bat_helper::Directions& directions) {
+  if (category == ledger::REWARDS_CATEGORY::AUTO_CONTRIBUTE) {
+    if (budget > balance) {
+      BLOG(ledger_, ledger::LogLevel::LOG_WARNING) <<
+          "You do not have enough funds for auto contribution";
+       Complete(ledger::Result::NOT_ENOUGH_FUNDS,
+                viewing_id,
+                category);
+      return false;
+    }
+
+    fee = budget;
+    return true;
+  }
+
+  if (category == ledger::REWARDS_CATEGORY::RECURRING_TIP) {
+    double ac_amount = ledger_->GetContributionAmount();
+
+    // don't use ac amount if ac is disabled
+    if (!contribution_->ShouldStartAutoContribute()) {
+      ac_amount = 0;
+    }
+
+    if (budget + ac_amount > balance) {
+      BLOG(ledger_, ledger::LogLevel::LOG_WARNING) <<
+        "You do not have enough funds to do recurring and auto contribution";
+        Complete(ledger::Result::NOT_ENOUGH_FUNDS,
+                 viewing_id,
+                 ledger::REWARDS_CATEGORY::AUTO_CONTRIBUTE);
+      return false;
+    }
+
+    fee = budget;
+    return true;
+  }
+
+  if (category == ledger::REWARDS_CATEGORY::ONE_TIME_TIP) {
+    for (const auto& direction : directions) {
+      if (direction.publisher_key_.empty()) {
+        BLOG(ledger_, ledger::LogLevel::LOG_ERROR) <<
+          "Reconcile direction missing publisher";
+        Complete(ledger::Result::TIP_ERROR,
+                 viewing_id,
+                 category);
+        return false;
+      }
+
+      if (direction.currency_ != LEDGER_CURRENCY || direction.amount_ == 0) {
+        BLOG(ledger_, ledger::LogLevel::LOG_ERROR) <<
+          "Reconcile direction currency invalid for " <<
+          direction.publisher_key_;
+        Complete(ledger::Result::TIP_ERROR,
+                 viewing_id,
+                 category);
+        return false;
+      }
+
+      fee += direction.amount_;
+    }
+
+    if (fee > balance) {
+      BLOG(ledger_, ledger::LogLevel::LOG_WARNING) <<
+        "You do not have enough funds to do a tip";
+        Complete(ledger::Result::NOT_ENOUGH_FUNDS,
+                 viewing_id,
+                 category);
+      return false;
+    }
+
+    return true;
+  }
+}
+
+void Contribution::ProcessReconcile(
+    const std::string& viewing_id,
+    const ledger::REWARDS_CATEGORY category,
+    const braveledger_bat_helper::PublisherList& list,
+    const braveledger_bat_helper::Directions& directions,
+    double budget,
+    double balance) {
+  if (ledger_->ReconcileExists(viewing_id)) {
+    BLOG(ledger_, ledger::LogLevel::LOG_ERROR) <<
+      "Unable to reconcile with the same viewing id: " << viewing_id;
+    // TODO(nejczdovc) what should we do in this scenario?
+    return;
+  }
+
+  auto reconcile = braveledger_bat_helper::CURRENT_RECONCILE();
+  double fee = .0;
+
+  if (!HaveReconcileEnoughFunds(category, fee, budget, directions)) {
+    return;
+  }
+
+  if (list.size() == 0 || budget == 0) {
+    if (category == ledger::REWARDS_CATEGORY::AUTO_CONTRIBUTE) {
+      BLOG(ledger_, ledger::LogLevel::LOG_INFO) <<
+        "Auto contribution table is empty";
+      Complete(ledger::Result::AC_TABLE_EMPTY,
+               viewing_id,
+               category);
+      return;
+    }
+
+    if (category == ledger::REWARDS_CATEGORY::RECURRING_TIP) {
+      Complete(ledger::Result::RECURRING_TABLE_EMPTY,
+               viewing_id,
+               ledger::REWARDS_CATEGORY::RECURRING_TIP);
+      BLOG(ledger_, ledger::LogLevel::LOG_INFO) <<
+        "Recurring donation list is empty";
+      return;
+    }
+  }
+
+  reconcile.viewingId_ = viewing_id;
+  reconcile.fee_ = fee;
+  reconcile.directions_ = directions;
+  reconcile.category_ = category;
+  reconcile.list_ = list;
+
+  ledger_->AddReconcile(viewing_id, reconcile);
+
+  // Check if we have token
+  const std::string token = ledger_->GetUpholdToken();
+  if (token.empty()) {
+    phase_one_->Start(viewing_id);
+  } else {
+    connected_->Start(viewing_id);
+  }
 }
 
 }  // namespace braveledger_contribution

@@ -47,10 +47,10 @@
 
 // PHASE 0
 // 1. InitReconcile
+// 2. ProcessReconcile
 
 // PHASE 1 (reconcile)
-// 1. Start
-// 2. Reconcile
+// 1. Start (Reconcile)
 // 3. ReconcileCallback
 // 4. CurrentReconcile
 // 5. CurrentReconcileCallback
@@ -92,6 +92,10 @@ class PhaseTwo;
 
 namespace braveledger_contribution {
 class Unverified;
+}
+
+namespace braveledger_contribution {
+class Connected;
 }
 
 namespace braveledger_contribution {
@@ -240,10 +244,25 @@ class Contribution {
       std::unique_ptr<ledger::WalletInfo> info,
       ledger::HasSufficientBalanceToReconcileCallback callback);
 
+  bool HaveReconcileEnoughFunds(
+    const ledger::REWARDS_CATEGORY category,
+    double* fee,
+    double budget,
+    const braveledger_bat_helper::Directions& directions);
+
+  void ProcessReconcile(
+    const std::string& viewing_id,
+    const ledger::REWARDS_CATEGORY category,
+    const braveledger_bat_helper::PublisherList& list,
+    const braveledger_bat_helper::Directions& directions,
+    double budget,
+    double balance);
+
   bat_ledger::LedgerImpl* ledger_;  // NOT OWNED
   std::unique_ptr<PhaseOne> phase_one_;
   std::unique_ptr<PhaseTwo> phase_two_;
   std::unique_ptr<Unverified> unverified_;
+  std::unique_ptr<Connected> connected_;
   uint32_t last_reconcile_timer_id_;
   std::map<std::string, uint32_t> retry_timers_;
 
