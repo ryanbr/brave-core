@@ -41,6 +41,15 @@ declare namespace RewardsTip {
     tweetText: string
   }
 
+  interface GitHubCommentMetaData {
+    name: string
+    screenName: string
+    userId: string
+    tweetId: string
+    tweetTimestamp: number
+    tweetText: string
+  }
+
   export interface WalletProperties {
     balance: number
     choices: number[]
