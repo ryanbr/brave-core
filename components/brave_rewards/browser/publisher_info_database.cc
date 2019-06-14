@@ -177,12 +177,10 @@ void PublisherInfoDatabase::GetAllTransactions(ledger::PublisherInfoList* list,
   sql::Statement info_sql(db_.GetUniqueStatement(
       "SELECT pi.publisher_id, pi.name, pi.verified, pi.favicon, "
       "pi.provider, ci.probi, ci.date, ci.category, ci.month, ci.year, "
-      "ai.percent, pendi.amount, pendi.added_date, pendi.category "
+      "ai.percent "
       "FROM contribution_info as ci "
       "INNER JOIN publisher_info AS pi ON ci.publisher_id = pi.publisher_id "
-      "INNER JOIN activity_info AS ai ON ci.publisher_id = ai.publisher_id "
-      "INNER JOIN pending_contribution AS pendi ON "
-      "   ci.publisher_id = pendi.publisher_id"));
+      "INNER JOIN activity_info AS ai ON ci.publisher_id = ai.publisher_id "));
       while (info_sql.Step()) {
         auto BalanceReportInfo balance_report_info =
             new BalanceReportInfo();

@@ -38,9 +38,6 @@ LEDGER_EXPORT struct BalanceReportInfo {
   std::string recurring_donation_ = "0";
   std::string one_time_donation_ = "0";
   std::string total_ = "0";
-  PublisherInfoList publishers;
-  PendingContributionInfoList pending_contributions;
-
 };
 
 }  // namespace ledger
